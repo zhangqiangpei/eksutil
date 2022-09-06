@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"os"
 
 	eksauth "github.com/chankh/eksutil/pkg/auth"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	corev1 "k8s.io/api/core/v1"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -34,24 +34,28 @@ func handler(context context.Context, req events.APIGatewayProxyRequest) (events
 		log.WithError(err).Fatal(err.Error())
 	}
 
-	// Call Kubernetes API here
-	pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{})
+	// group_name
+
+	nodes, err := clientset.CoreV1().Nodes().List(metav1.ListOptions{})
 	if err != nil {
-		log.WithError(err).Fatal("Error listing pods")
+		log.WithError(err).Fatal("Error listing nodes")
+	}
+	for i := range nodes.Items {
+		for j := range nodes.Items[i].Spec.Taints {
+			taint := nodes.Items[i].Spec.Taints[j]
+			if taint.Key == "dedicated" && taint.Value == "custom_ami-20220715023441369500000002" && taint.Effect != corev1.TaintEffectNoExecute {
+				nodes.Items[i].Spec.Taints[j].Effect = corev1.TaintEffectNoExecute
+				node := &nodes.Items[i]
+				_, err := clientset.CoreV1().Nodes().Update(node)
+				if err != nil {
+					log.WithError(err).Fatal("Error Update node")
+				}else {
+					log.Infof("[node: %s] Taints: %v \n", nodes.Items[i].Name, nodes.Items[i].Spec.Taints[j])
+				}
+			}
+		}
 	}
 
-	var results []string
 
-	for i, pod := range pods.Items {
-		log.Infof("[%d] %s", i, pod.Name)
-		results = append(results, pod.Name)
-	}
-
-	json, err := json.Marshal(results)
-	if err != nil {
-		log.WithError(err).Fatal("Unable to marshal results to json")
-
-	}
-
-	return events.APIGatewayProxyResponse{Body: string(json), StatusCode: 200}, nil
+	return events.APIGatewayProxyResponse{StatusCode: 200}, nil
 }
