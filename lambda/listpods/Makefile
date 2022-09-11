@@ -44,7 +44,7 @@ dep:
 
 build:
 	@echo "Building..."
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) go build -ldflags='-w -s' -o $(HANDLER)
+	@GOOS=$(GOOS) GOARCH=$(GOARCH) go build -mod=readonly -ldflags='-w -s' -o $(HANDLER)
 
 pack:
 	@echo "Packing binary..."
