@@ -64,14 +64,6 @@
   version = "v1.15.7"
 
 [[projects]]
-  branch = "master"
-  digest = "1:da004d248cf4e539341d74fa97add55c7503c94507fd98125e9af07e03884806"
-  name = "github.com/chankh/eksutil"
-  packages = ["pkg/auth"]
-  pruneopts = "UT"
-  revision = "783ea675ec1f786a1525ab1b1b5dfc299cdc7cf9"
-
-[[projects]]
   digest = "1:2cd7915ab26ede7d95b8749e6b1f933f1c6d5398030684e6505940a10f31cfda"
   name = "github.com/ghodss/yaml"
   packages = ["."]
@@ -461,7 +453,6 @@
     "github.com/aws/aws-sdk-go/service/s3/s3manager",
     "github.com/aws/aws-sdk-go/service/sts",
     "github.com/aws/aws-sdk-go/service/sts/stsiface",
-    "github.com/chankh/eksutil/pkg/auth",
     "github.com/kubernetes-sigs/aws-iam-authenticator/pkg/token",
     "github.com/pkg/errors",
     "github.com/sirupsen/logrus",
